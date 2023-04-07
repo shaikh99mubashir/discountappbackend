@@ -23,31 +23,32 @@ mongoose
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await signUpForm.findOne({ email })
-  .then((response)=>{
-    const isMatch =  bcrypt.compare(password, response.password);
-    if(isMatch){
+  signUpForm.findOne({ email })
+    .then(async (response) => {
+      console.log('response', response);
+      console.log('response.password', response.password);
+      const isMatch = await bcrypt.compare(password, response.password);
+      console.log('isMatch', isMatch);
+      if (isMatch) {
+        res.json({
+          message: "Sign In Successfully",
+          status: true,
+        });
+      } else {
+        res.json({
+          message: "Password Not Correct",
+          status: false,
+        });
+      }
+    })
+    .catch((error) => {
+      console.log('error', error);
       res.json({
-        message: "Sign In Successfully",
-        status: true,
-      });
-    }
-    else{
-      res.json({
-        message: "password Not Correct",
+        message: "Email Not Correct",
         status: false,
       });
-    }
-  })
-  .catch((error)=>{
-    console.log('error',error);
-    res.json({
-      message: "Email Not Correct",
-      status: false,
-    });
-  })
+    })
 });
-
 // Signup Api
 app.post("/signup", async (request, response) => {
   const { first_name, phone_number, email, password, is_approved } =
