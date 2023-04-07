@@ -51,7 +51,7 @@ app.post('/login', async (req, res) => {
 // Signup Api
 app.post("/signup", async (request, response) => {
   const { first_name, phone_number, email, password, is_approved } =
-    request.body;
+ request.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const existingUser = await signUpForm.findOne({ email: email });
