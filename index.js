@@ -88,6 +88,35 @@ app.post("/signup", async (request, response) => {
     });
 });
 
+const Todo = mongoose.model('Todo', {
+  title: String,
+  description: String,
+  completed: Boolean
+});
+
+app.get('/todos', async (req, res) => {
+  const todos = await Todo.find();
+  res.json(todos);
+});
+
+app.post('/todos', async (req, res) => {
+  const todo = new Todo(req.body);
+  await todo.save();
+  res.json(todo);
+});
+
+app.put('/todos/:id', async (req, res) => {
+  const { id } = req.params;
+  const todo = await Todo.findByIdAndUpdate(id, req.body, { new: true });
+  res.json(todo);
+});
+
+app.delete('/todos/:id', async (req, res) => {
+  const { id } = req.params;
+  await Todo.findByIdAndDelete(id);
+  res.sendStatus(204);
+});
+
 app.listen(PORT, () =>
   console.log(`SERVER RUNNING on http://localhost:${PORT}`)
 );
