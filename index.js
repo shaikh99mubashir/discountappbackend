@@ -18,18 +18,17 @@ mongoose
   .then((res) => console.log("DB Connected"))
   .catch((error) => console.log("error", error));
 
-
-
 // Login API
-app.post('/login', async (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  signUpForm.findOne({ email })
+  signUpForm
+    .findOne({ email })
     .then(async (response) => {
-      console.log('response', response);
-      console.log('response.password', response.password);
+      console.log("response", response);
+      console.log("response.password", response.password);
       const isMatch = await bcrypt.compare(password, response.password);
-      console.log('isMatch', isMatch);
+      console.log("isMatch", isMatch);
       if (isMatch) {
         res.json({
           message: "Sign In Successfully",
@@ -43,17 +42,17 @@ app.post('/login', async (req, res) => {
       }
     })
     .catch((error) => {
-      console.log('error', error);
+      console.log("error", error);
       res.json({
         message: "Email Not Correct",
         status: false,
       });
-    })
+    });
 });
 // Signup Api
 app.post("/signup", async (request, response) => {
   const { first_name, phone_number, email, password, is_approved } =
- request.body;
+    request.body;
   const hashedPassword = await bcrypt.hash(password, 10);
 
   const existingUser = await signUpForm.findOne({ email: email });
@@ -90,30 +89,90 @@ app.post("/signup", async (request, response) => {
 });
 
 // ADD Branches
-app.post("/api/branches", (request, response)=>{
-  const body = request.body
-  console.log('Body',body);
-  const objToSend ={
-    branch: body.branch
-  }
-  branchesModal.create(objToSend)
-  .then((data) => {
-    response.json({
-      message: "Branch ADD SUCCESSFULLY",
-      branch: data,
-      status: true,
+app.post("/api/branches", (request, response) => {
+  const body = request.body;
+  console.log("Body", body);
+  const objToSend = {
+    branch: body.branch,
+  };
+  branchesModal
+    .create(objToSend)
+    .then((data) => {
+      response.json({
+        message: "Branch ADD SUCCESSFULLY",
+        branch: data,
+        status: true,
+      });
+    })
+    .catch((error) => {
+      response.json({
+        message: `Internal error: ${error}`,
+        status: false,
+      });
     });
-  })
-  .catch((error) => {
-    response.json({
-      message: `Internal error: ${error}`,
-      status: false,
+});
+
+// GET Branch
+app.get("/api/branches", (request, response) => {
+  branchesModal
+    .find({})
+    .then((data) => {
+      response.json({
+        message: "SUCCESSFULLY Get",
+        branch: data,
+        status: true,
+      });
+    })
+    .catch((error) => {
+      response.json({
+        message: `Internal error: ${error}`,
+        status: false,
+      });
     });
-  });  
-  
-})
+});
 
+// Delete Branch
+app.delete("/api/branches/:id", (request, response) => {
+  const { id } = request.params;
+  console.log("id", id);
+  branchesModal
+    .findByIdAndDelete(id)
+    .then((data) => {
+      response.json({
+        message: "SUCCESSFULLY Deleted",
+        status: true,
+      });
+    })
+    .catch((error) => {
+      response.json({
+        message: `Internal error: ${error}`,
+        status: false,
+      });
+    });
+});
 
+// Edit Branch
+app.put("/api/branches", (request, response) => {
+  const body = request.body;
+  console.log('body',body);
+  const objToSend = {
+    branch: body.branch,
+  };
+  branchesModal
+    .findByIdAndUpdate(body.id, objToSend)
+    .then((data) => {
+      response.json({
+        message: "SUCCESSFULLY Update",
+        status: true,
+      });
+    })
+    .catch((error) => {
+      response.json({
+        message: `Internal error: ${error}`,
+        status: false,
+      });
+    });
+});
 
 app.listen(PORT, () =>
   console.log(`SERVER RUNNING on http://localhost:${PORT}`)
