@@ -3,6 +3,7 @@ const app = express();
 const PORT = 5000;
 const mongoose = require("mongoose");
 const signUpForm = require("./Models/signup");
+const branchesModal = require("./Models/addBranches");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -88,34 +89,31 @@ app.post("/signup", async (request, response) => {
     });
 });
 
-const Todo = mongoose.model('Todo', {
-  title: String,
-  description: String,
-  completed: Boolean
-});
+// ADD Branches
+app.post("/api/branches", (request, response)=>{
+  const body = request.body
+  console.log('Body',body);
+  const objToSend ={
+    branch: body.branch
+  }
+  branchesModal.create(objToSend)
+  .then((data) => {
+    response.json({
+      message: "Branch ADD SUCCESSFULLY",
+      branch: data,
+      status: true,
+    });
+  })
+  .catch((error) => {
+    response.json({
+      message: `Internal error: ${error}`,
+      status: false,
+    });
+  });  
+  
+})
 
-app.get('/todos', async (req, res) => {
-  const todos = await Todo.find();
-  res.json(todos);
-});
 
-app.post('/todos', async (req, res) => {
-  const todo = new Todo(req.body);
-  await todo.save();
-  res.json(todo);
-});
-
-app.put('/todos/:id', async (req, res) => {
-  const { id } = req.params;
-  const todo = await Todo.findByIdAndUpdate(id, req.body, { new: true });
-  res.json(todo);
-});
-
-app.delete('/todos/:id', async (req, res) => {
-  const { id } = req.params;
-  await Todo.findByIdAndDelete(id);
-  res.sendStatus(204);
-});
 
 app.listen(PORT, () =>
   console.log(`SERVER RUNNING on http://localhost:${PORT}`)
