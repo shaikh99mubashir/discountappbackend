@@ -7,10 +7,11 @@ const branchesModal = require("./Models/addBranches");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const multer = require('multer');
 //BODY PARSER
 app.use(express.json());
 app.use(cors());
-
+const upload = multer({ dest: 'uploads/' }); // specify the directory to store the uploaded files
 const DBURI =
   "mongodb+srv://shaikh99mubashir:admin@cluster0.6jaumrt.mongodb.net/?retryWrites=true&w=majority";
 mongoose
@@ -172,6 +173,16 @@ app.put("/api/branches", (request, response) => {
         status: false,
       });
     });
+});
+
+// Upload image
+// route for handling image uploads
+app.post('/upload', upload.single('image'), async (req, res) => {
+  const { filename, mimetype, path } = req.file;
+  const image = { filename, mimetype, path };
+  const result = await client.db('mydb').collection('images').insertOne(image);
+  const imageUrl = `http://localhost:5000/images/${result.insertedId}`;
+  res.json({ imageUrl });
 });
 
 app.listen(PORT, () =>
